@@ -1,0 +1,6 @@
+---
+# SPDX-License-Identifier: GPL-3.0-only
+# SUSE: rsyslog-relp → rsyslog-module-relp; librelp → librelp0
+__rsyslog_input_relp_packages:
+  - rsyslog-module-relp
+  - librelp0

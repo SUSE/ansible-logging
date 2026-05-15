@@ -45,6 +45,13 @@
     - __rsyslog_enabled | bool or
       __rsyslog_erased is success
 
+# Save whether rsyslog was just reinstalled (before the flag is reset).
+# Used later to force rsyslog.conf regeneration so the restored original
+# package config is replaced by the known-good role-generated one.
+- name: Save reinstalled state before resetting erased flag
+  set_fact:
+    __rsyslog_pkg_was_reinstalled: "{{ __rsyslog_erased.changed | d(false) }}"
+
 # make sure we do not pollute the global namespace for subsequent runs
 # of this role
 - name: Reset erased flag
@@ -423,7 +430,8 @@
   vars:
     __rsyslog_generate_conf: "{{ (__logging_is_ostree | d(false)) |
       ternary(true,
-              __rsyslog_enabled and rsyslog_inputs | d([]) | length > 0) }}"
+              __rsyslog_enabled and (rsyslog_inputs | d([]) | length > 0 or
+              __rsyslog_pkg_was_reinstalled | d(false))) }}"
   when: __rsyslog_generate_conf | bool
   block:
     - name: See if there are any config files
@@ -448,4 +456,11 @@
       when: __rsyslog_generate_conf | bool
       vars:
         __rsyslog_has_config_files: "{{ __rsyslog_find_result.matched > 0
-          if __logging_is_ostree | d(false) else true }}"
+          if __logging_is_ostree | d(false)
+          else (rsyslog_inputs | d([]) | length > 0 or
+                rsyslog_outputs | d([]) | length > 0) }}"
+
+# Reset the reinstalled flag to avoid polluting subsequent role runs
+- name: Reset reinstalled flag
+  set_fact:
+    __rsyslog_pkg_was_reinstalled: false

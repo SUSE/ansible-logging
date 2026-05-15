@@ -1,0 +1,5 @@
+---
+# SPDX-License-Identifier: GPL-3.0-only
+# SUSE: rsyslog-elasticsearch → rsyslog-module-elasticsearch
+__rsyslog_elasticsearch_packages:
+  - rsyslog-module-elasticsearch

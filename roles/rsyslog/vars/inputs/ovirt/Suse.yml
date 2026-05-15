@@ -1,0 +1,13 @@
+---
+# SPDX-License-Identifier: GPL-3.0-only
+# SUSE pkg name mapping:
+#   rsyslog-mmnormalize → rsyslog-module-mmnormalize
+#   rsyslog-mmjsonparse → bundled in base `rsyslog` package on SUSE (no separate pkg)
+#   libfastjson         → libfastjson4
+#   liblognorm          → liblognorm5
+#   libestr             → libestr0
+__rsyslog_ovirt_packages:
+  - rsyslog-module-mmnormalize
+  - libfastjson4
+  - liblognorm5
+  - libestr0

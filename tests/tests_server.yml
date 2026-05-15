@@ -16,9 +16,11 @@
     - tests::booted
   vars:
     __test_cert_name: logging_cert
-    __test_ca_cert: "/etc/pki/tls/certs/{{ __test_cert_name }}.crt"
-    __test_key: "/etc/pki/tls/private/{{ __test_cert_name }}.key"
-    __test_cert: "/etc/pki/tls/certs/{{ __test_cert_name }}.crt"
+    # On SUSE, PKI certs live under /etc/ssl; on RHEL/Fedora under /etc/pki/tls
+    __test_pki_path: "{{ '/etc/ssl' if ansible_os_family == 'Suse' else '/etc/pki/tls' }}"
+    __test_ca_cert: "{{ __test_pki_path }}/certs/{{ __test_cert_name }}.crt"
+    __test_key: "{{ __test_pki_path }}/private/{{ __test_cert_name }}.key"
+    __test_cert: "{{ __test_pki_path }}/certs/{{ __test_cert_name }}.crt"
     __test_server_ptcp: /etc/rsyslog.d/11-input-remote-remote_ptcp.conf
     __test_server_tcp: /etc/rsyslog.d/11-input-remote-remote_tcp.conf
     __test_server_udp: /etc/rsyslog.d/11-input-remote-remote_udp.conf

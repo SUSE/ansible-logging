@@ -28,6 +28,8 @@
     __test_template: RSYSLOG_ForwardFormat
     __test_template_trad: RSYSLOG_TraditionalForwardFormat
     __test_template_sys: RSYSLOG_SyslogProtocol23Format
+    # On SUSE, PKI certs live under /etc/ssl; on RHEL/Fedora under /etc/pki/tls
+    __test_pki_path: "{{ '/etc/ssl' if ansible_os_family == 'Suse' else '/etc/pki/tls' }}"
 
   tasks:
     - name: Run test
@@ -375,13 +377,13 @@
 
         - name: Check the fake ca cert is successfully copied
           stat:
-            path: "/etc/pki/tls/certs/{{ __test_ca_cert_name }}"
+            path: "{{ __test_pki_path }}/certs/{{ __test_ca_cert_name }}"
           register: __result
           failed_when: not __result.stat.exists
 
         - name: Check the fake key/certs paths are set in the global config.
           command: >
-            /bin/grep "/etc/pki/tls/certs/{{ __test_ca_cert_name }}"
+            /bin/grep "{{ __test_pki_path }}/certs/{{ __test_ca_cert_name }}"
             /etc/rsyslog.d/00-global.conf
           changed_when: false
 
@@ -401,7 +403,7 @@
             path: "{{ item }}"
             state: absent
           loop:
-            - "/etc/pki/tls/certs/{{ __test_ca_cert_name }}"
+            - "{{ __test_pki_path }}/certs/{{ __test_ca_cert_name }}"
 
         # TEST CASE 2
         - name: "Prep - Test logging_purge_confs, in case no config files
@@ -484,17 +486,17 @@
             path: "{{ item }}"
           register: __result
           loop:
-            - /etc/pki/tls/certs/{{ __test_ca_cert_name }}
-            - /etc/pki/tls/certs/{{ __test_cert_name }}
-            - /etc/pki/tls/private/{{ __test_key_name }}
+            - "{{ __test_pki_path }}/certs/{{ __test_ca_cert_name }}"
+            - "{{ __test_pki_path }}/certs/{{ __test_cert_name }}"
+            - "{{ __test_pki_path }}/private/{{ __test_key_name }}"
           failed_when: not __result.stat.exists
 
         - name: Check the fake key/certs paths are set in the global config.
           command: /bin/grep "{{ item }}" /etc/rsyslog.d/00-global.conf
           loop:
-            - /etc/pki/tls/certs/{{ __test_ca_cert_name }}
-            - /etc/pki/tls/certs/{{ __test_cert_name }}
-            - /etc/pki/tls/private/{{ __test_key_name }}
+            - "{{ __test_pki_path }}/certs/{{ __test_ca_cert_name }}"
+            - "{{ __test_pki_path }}/certs/{{ __test_cert_name }}"
+            - "{{ __test_pki_path }}/private/{{ __test_key_name }}"
           changed_when: false
 
         - name: END TEST CASE 2; Clean up the deployed config
@@ -513,9 +515,9 @@
             path: "{{ item }}"
             state: absent
           loop:
-            - "/etc/pki/tls/certs/{{ __test_ca_cert_name }}"
-            - "/etc/pki/tls/certs/{{ __test_cert_name }}"
-            - "/etc/pki/tls/private/{{ __test_key_name }}"
+            - "{{ __test_pki_path }}/certs/{{ __test_ca_cert_name }}"
+            - "{{ __test_pki_path }}/certs/{{ __test_cert_name }}"
+            - "{{ __test_pki_path }}/private/{{ __test_key_name }}"
 
         - name: Post - move back files to /etc/rsyslog.d
           shell: |-
@@ -583,7 +585,7 @@
             path: "{{ item }}"
             state: absent
           loop:
-            - "/etc/pki/tls/private/{{ __test_key_name }}"
+            - "{{ __test_pki_path }}/private/{{ __test_key_name }}"
 
       always:
         - name: Remove tempdir

@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: GPL-3.0-only
+---
+# On SUSE, zypper auto-removes syslog-service when rsyslog is removed
+# (syslog-service depends on rsyslog). syslog-service provides the
+# systemd syslog.service alias and the rsyslog enable symlink. Without
+# reinstalling it after rsyslog, rsyslog fails to restart.
+# Also: SUSE uses iproute2 (not iproute) for the ip command.
+__rsyslog_base_packages:
+  - iproute2
+  - rsyslog
+  - syslog-service
+
+# On SUSE, the TLS module for rsyslog is 'rsyslog-module-gtls', not 'rsyslog-gnutls'
+__rsyslog_tls_packages:
+  - rsyslog-module-gtls
+  - ca-certificates
+
+# On SUSE, the PKI/TLS certificate directory is /etc/ssl/ not /etc/pki/tls/
+__rsyslog_default_pki_path: "/etc/ssl/"
